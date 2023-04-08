@@ -9,7 +9,7 @@ app.use(express.json());
 app.use(cors());
 
 app.get('/', (req, res) => {
-  res.send("Server is running successfully")
+  res.send("Server is running successfully");
 })
 
 
@@ -25,15 +25,16 @@ async function run() {
     // connecting to database collection
     const studentsCollection = client.db("simple_student_crud").collection("students");
 
-    const student = {
-      name: 'saimon',
-      age: '22',
-      class: 'diploma',
-      roll: 941486,
-      reg: 858617
-    }
+    // const student = {
+    //   name: 'saimon',
+    //   age: '22',
+    //   class: 'diploma',
+    //   roll: 941486,
+    //   reg: 858617
+    // }
 
     app.post('/student', async (req, res) => {
+      const student = req.body;
       const result = await studentsCollection.insertOne(student);
       res.send(result);
     })
@@ -44,12 +45,24 @@ async function run() {
       res.send(result);
     })
 
+    app.get('/student-data/:id', async(req, res) =>{
+      const id = req.params.id;
+      const query = {_id: new ObjectId(id)};
+      const result = await studentsCollection.findOne(query);
+      res.send(result);
+    })
+
     app.put('/student/:id', async(req, res) =>{
       const id = req.params.id;
+      const studentData = req.body;
       const filter = {_id: new ObjectId(id)};
       const updateDoc = {
         $set: {
-          reg: 1111
+          name: studentData.name,
+          group: studentData.group,
+          roll: studentData.roll,
+          contact: studentData.contact,
+          bio: studentData.bio
         }
       }
       const result = await studentsCollection.updateOne(filter, updateDoc);
